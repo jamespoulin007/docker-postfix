@@ -3,18 +3,13 @@ FROM ubuntu:18.04
 LABEL Maintainer="James Poulin"
 
 RUN set -e \
-    apt-get update \
-    && apt-get -y --no-install-recommends install \
-      procps \
-      postfix \
-      libsasl2-modules \
-      rsyslog  \
-    && apt-get clean  \
-    && rm -rf /var/lib/apt/lists/*
-# Default config:
-# Open relay, trust docker links for firewalling.
-# Try to use TLS when sending to other smtp servers.
-# No TLS for connecting clients, trust docker network to be safe
+    && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update -y \
+    && apt-get install -yq \
+        procps \
+        postfix \
+        libsasl2-modules \
+        rsyslog
 
 ENV \
     POSTFIX_myhostname=mail.smtp \
@@ -35,5 +30,9 @@ COPY launch.sh /
 
 RUN chmod +x /launch.sh
 
-ENTRYPOINT ["/tini", "--", "/launch.sh"]
+ENTRYPOINT ["/tini", "--"]
+
+CMD ["/launch.sh"]
+
+
 
